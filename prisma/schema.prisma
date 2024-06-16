@@ -26,10 +26,9 @@ model User {
 model Todo {
   id        Int      @default(autoincrement()) @id
   title     String
-  status   String?
-  content   String?
+  status   Int?
   description   String?
-  deadline   String?
+  deadline   DateTime?
   author    User?    @relation(fields: [authorId], references: [id])
   authorId  Int?
   createdAt DateTime @default(now())
