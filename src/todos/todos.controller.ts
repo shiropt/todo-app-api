@@ -3,11 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpException,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -18,8 +18,27 @@ export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todosService.create(createTodoDto);
+  async create(@Body() createTodoDto: CreateTodoDto) {
+    try {
+      const data = await this.todosService.create({
+        ...createTodoDto,
+        deadline: createTodoDto.deadline || undefined,
+      });
+      return {
+        status: HttpStatus.OK,
+        data,
+        type: 'todo',
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        { cause: error },
+      );
+    }
   }
 
   @Get()
@@ -35,7 +54,7 @@ export class TodosController {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: 'internal server error',
+          error,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
         { cause: error },
@@ -56,7 +75,7 @@ export class TodosController {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: 'internal server error',
+          error,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
         { cause: error },
@@ -64,10 +83,13 @@ export class TodosController {
     }
   }
 
-  @Patch(':id')
+  @Put(':id')
   async update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
     try {
-      const data = await this.todosService.update(+id, updateTodoDto);
+      const data = await this.todosService.update(+id, {
+        ...updateTodoDto,
+        deadline: updateTodoDto.deadline || undefined,
+      });
       return {
         status: HttpStatus.OK,
         data,
@@ -77,7 +99,7 @@ export class TodosController {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: 'internal server error',
+          error,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
         { cause: error },
@@ -88,7 +110,7 @@ export class TodosController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {
-      const data = this.todosService.remove(+id);
+      const data = await this.todosService.remove(+id);
       return {
         status: HttpStatus.OK,
         data,
@@ -98,7 +120,7 @@ export class TodosController {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: 'internal server error',
+          error,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
         { cause: error },
