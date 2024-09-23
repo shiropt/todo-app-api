@@ -17,4 +17,8 @@ $ psql -U root
   $ \l
 
 - migration
-  $ npx prisma generate
+  $ npx prisma migrate dev
+  $ yarn prisma:seed
+
+- database reset
+  $ yarn prisma:reset
