@@ -8,7 +8,7 @@ async function main() {
       data: {
         name,
         email: `${name.toLowerCase()}@example.io`,
-        todos: { create: generateTodos(5) },
+        todos: { create: generateTodos({ name, length: 5 }) },
       },
     });
   });
