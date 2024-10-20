@@ -7,3 +7,16 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
+  api:
+    image: node:20-alpine
+    ports:
+      - 3001:3001
+    depends_on:
+      - db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      DATABASE_URL: postgresql://root:password@localhost:5430/todo_app_db?schema=public
+    container_name: todo_app_api
+    working_dir: /usr/src/app
+    command: yarn install && npx prisma migrate dev && yarn start
